@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Todo App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #eee;
+      margin: 5px 0;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📝 Todo App</h1>
+
+  <div class="container">
+    <input type="text" id="title" placeholder="Enter todo title" />
+    
+    <select id="priority">
+      <option value="">Select Priority</option>
+      <option value="High">High</option>
+      <option value="Medium">Medium</option>
+      <option value="Low">Low</option>
+    </select>
+
+    <button onclick="addTodo()">Add Todo</button>
+
+    <ul id="todoList"></ul>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/todos";
+
+    // Fetch and display todos
+    function loadTodos() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("todoList");
+          list.innerHTML = "";
+
+          data.forEach(todo => {
+            const li = document.createElement("li");
+            li.className = todo.completed ? "done" : "";
+
+            li.innerHTML = `
+              ${todo.title} (${todo.priority})
+              <div>
+                <button onclick="toggleTodo(${todo.id}, ${todo.completed})">✔</button>
+                <button onclick="deleteTodo(${todo.id})">🗑</button>
+              </div>
+            `;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    // Add new todo
+    function addTodo() {
+      const title = document.getElementById("title").value;
+      const priority = document.getElementById("priority").value;
+
+      if (!title || !priority) {
+        alert("Please enter title and priority");
+        return;
+      }
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, priority })
+      })
+      .then(() => {
+        document.getElementById("title").value = "";
+        document.getElementById("priority").value = "";
+        loadTodos();
+      });
+    }
+
+    // Toggle completed
+    function toggleTodo(id, completed) {
+      fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: !completed })
+      })
+      .then(loadTodos);
+    }
+
+    // Delete todo
+    function deleteTodo(id) {
+      fetch(`${API_URL}/${id}`, {
+        method: "DELETE"
+      })
+      .then(loadTodos);
+    }
+
+    loadTodos();
+  </script>
+
+</body>
+</html>

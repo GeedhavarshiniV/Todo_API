@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "title": "Learn Node.js",
+    "completed": false,
+    "priority": "High"
+  },
+  {
+    "id": 3,
+    "title": "Prepare for GATE",
+    "completed": true,
+    "priority": "High"
+  }
+]
